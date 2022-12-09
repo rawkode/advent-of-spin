@@ -1,0 +1,17 @@
+spin_version = "1"
+authors = ["David Flanagan <david@rawkode.dev>"]
+description = ""
+name = "challenge-one-grain"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[[component]]
+id = "challenge-one-grain"
+source = "main.wasm"
+
+[component.trigger]
+route = "/..."
+executor = { type = "wagi" }
+
+[component.build]
+command = "grain compile --release -o main.wasm main.gr"

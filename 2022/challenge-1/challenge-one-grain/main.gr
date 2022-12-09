@@ -1,0 +1,3 @@
+print("content-type: application/json")
+print("")
+print("{ \"message\": \"Hello, world!\" }")

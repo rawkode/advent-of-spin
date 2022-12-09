@@ -1,0 +1,29 @@
+spin_version = "1"
+authors = ["Fermyon Engineering <engineering@fermyon.com>"]
+name = "spin-http-js"
+trigger = { type = "http", base = "/" }
+version = "1.0.0"
+
+[[component]]
+id = "lowercase"
+source = "lowercase/target/spin-http-js.wasm"
+files = ["src/index.html"]
+
+[component.trigger]
+route = "/lowercase"
+
+[component.build]
+workdir = "lowercase"
+command = "npm run build"
+
+[[component]]
+id = "hello"
+source = "hello/target/wasm32-wasi/release/hello.wasm"
+allowed_http_hosts = ["insecure:allow-all"]
+
+[component.trigger]
+route = "/hello/..."
+
+[component.build]
+workdir = "hello"
+command = "cargo build --target wasm32-wasi --release"
