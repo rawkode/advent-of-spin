@@ -1,8 +1,10 @@
 use anyhow::Result;
+use http::Uri;
 use spin_sdk::{
     http::{Request, Response},
     http_component,
 };
+use std::str::FromStr;
 
 #[derive(serde::Serialize)]
 struct OutboundPayload {
@@ -22,17 +24,20 @@ struct ResponsePayload {
 /// A simple Spin HTTP component.
 #[http_component]
 fn hello(req: Request) -> Result<Response> {
-    println!("HELP: {:?}", req.uri());
+    let full_uri = req
+        .headers()
+        .get("spin-full-url")
+        .unwrap()
+        .to_str()
+        .unwrap();
 
-    return Ok(http::Response::builder()
-        .status(500)
-        .body(Some(format!("{:?}", req.uri()).into()))?);
+    let uri = Uri::from_str(full_uri).unwrap();
+    let domain = uri.host().unwrap();
 
-    let domain = "http://google.com";
-    // req.uri().host().unwrap();
-    let name = req.uri().path().split('/').last();
+    let name = req.uri().path().split('/').last().unwrap();
 
-    if name.is_none() {
+    // No name
+    if name.eq("hello") {
         let output_payload: ResponsePayload = ResponsePayload {
             message: "Hello, world!".to_string(),
         };
@@ -43,8 +48,6 @@ fn hello(req: Request) -> Result<Response> {
             .body(Some(serde_json::to_string(&output_payload).unwrap().into()))?);
     }
 
-    let name = name.unwrap();
-
     let outbound_payload = OutboundPayload {
         value: name.to_string(),
     };
@@ -52,7 +55,7 @@ fn hello(req: Request) -> Result<Response> {
     let res = spin_sdk::outbound_http::send_request(
         http::Request::builder()
             .method("POST")
-            .uri(format!("{}/lowercase", &domain))
+            .uri(format!("https://{}/lowercase", &domain))
             .body(Some(
                 serde_json::to_string(&outbound_payload).unwrap().into(),
             ))?,
