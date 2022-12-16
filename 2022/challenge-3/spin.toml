@@ -1,0 +1,33 @@
+name = "bartholomew-template"
+spin_version = "1"
+version = "0.1.0"
+description = "Your new Bartholomew website."
+trigger = { type = "http", base = "/" }
+
+[[component]]
+source = "modules/bartholomew.wasm"
+id = "bartholomew"
+files = ["content/**/*", "templates/*", "scripts/*", "config/*"]
+
+[component.trigger]
+route = "/..."
+
+[[component]]
+source = "modules/spin_static_fs.wasm"
+id = "fileserver"
+files = [{ source = "static/", destination = "/" }]
+
+[component.trigger]
+route = "/static/..."
+
+[[component]]
+id = "hello-world"
+source = "services/hello-world/main.wasm"
+
+[component.trigger]
+route = "/hello-world"
+executor = { type = "wagi" }
+
+[component.build]
+workdir = "services/hello-world"
+command = "grain compile --release -o main.wasm main.gr"
